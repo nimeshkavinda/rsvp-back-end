@@ -1,0 +1,31 @@
+{
+  "name": "rsvp-back-end",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nimeshkavinda/rsvp-back-end.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nimeshkavinda/rsvp-back-end/issues"
+  },
+  "homepage": "https://github.com/nimeshkavinda/rsvp-back-end#readme",
+  "dependencies": {
+    "@babel/runtime": "^7.12.13",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.12.16",
+    "@babel/core": "^7.12.16",
+    "@babel/node": "^7.12.16",
+    "@babel/plugin-transform-runtime": "^7.12.15",
+    "@babel/preset-env": "^7.12.16"
+  }
+}
