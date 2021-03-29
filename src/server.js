@@ -1,7 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import { MongoClient } from "mongodb";
-import path from 'path';
+import path from "path";
 import history from "connect-history-api-fallback";
 
 const app = express();
@@ -20,7 +20,7 @@ app.use(
 );
 app.use(history());
 
-app.listen(8000, () => {
+app.listen(process.env.PORT || 8000, () => {
   console.log("server is listening");
 });
 
@@ -29,11 +29,16 @@ app.get("/test", (req, res) => {
 });
 
 app.get("/api/events", async (req, res) => {
-  const client = await MongoClient.connect("mongodb://127.0.0.1:27017", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
-  const db = client.db("foss-rsvp");
+  const client = await MongoClient.connect(
+    process.env.MONGO_USER && process.env.MONGO_PASS
+      ? "mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}>@cluster0.bomle.mongodb.net/${process.env.MONGO_DBNAME}?retryWrites=true&w=majority"
+      : "mongodb://127.0.0.1:27017",
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }
+  );
+  const db = client.db(process.env.MONGO_DBNAME || "foss-rsvp");
   const events = await db.collection("events").find({}).toArray();
   res.status(200).json(events);
   client.close();
@@ -41,11 +46,16 @@ app.get("/api/events", async (req, res) => {
 
 app.get("/api/events/:eventId", async (req, res) => {
   const { eventId } = req.params;
-  const client = await MongoClient.connect("mongodb://127.0.0.1:27017", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
-  const db = client.db("foss-rsvp");
+  const client = await MongoClient.connect(
+    process.env.MONGO_USER && process.env.MONGO_PASS
+      ? "mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}>@cluster0.bomle.mongodb.net/${process.env.MONGO_DBNAME}?retryWrites=true&w=majority"
+      : "mongodb://127.0.0.1:27017",
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }
+  );
+  const db = client.db(process.env.MONGO_DBNAME || "foss-rsvp");
   const event = await db.collection("events").findOne({}, { id: eventId });
   if (event) {
     res.status(200).json(event);
