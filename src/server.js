@@ -1,6 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import { MongoClient } from "mongodb";
+import path from 'path';
 import history from "connect-history-api-fallback";
 
 const app = express();
