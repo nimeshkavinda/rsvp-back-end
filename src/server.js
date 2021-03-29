@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 import { MongoClient } from "mongodb";
 import path from "path";
 import history from "connect-history-api-fallback";
+import cors from "cors";
 
 const app = express();
 // const mongo = require("../mongo");
@@ -19,6 +20,7 @@ app.use(
   })
 );
 app.use(history());
+app.use(cors());
 
 app.listen(process.env.PORT || 8000, () => {
   console.log("server is listening");
