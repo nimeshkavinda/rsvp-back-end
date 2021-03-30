@@ -4,6 +4,7 @@ import { MongoClient } from "mongodb";
 import path from "path";
 import history from "connect-history-api-fallback";
 import cors from "cors";
+import { error } from "console";
 
 const app = express();
 // const mongo = require("../mongo");
@@ -22,7 +23,7 @@ app.use(
     eTag: false,
   })
 );
-app.use(express.json({limit: '200mb', extended: true}));
+app.use(express.json({ limit: "200mb", extended: true }));
 app.use(express.urlencoded());
 // app.use(express.bodyParser());
 // app.use(bodyParser.json());
@@ -111,9 +112,10 @@ app.post("/api/events", async (req, res) => {
   const db = client.db(process.env.MONGO_DBNAME || "foss-rsvp");
   await db.collection("events").insertOne(req.body, function (err, res) {
     if (err) throw err;
-    console.log("1 document inserted");
-    db.close();
+    console.log("document inserted");
+    client.close();
   });
+  res.status(200).json("success");
 });
 
 app.get("*", (req, res) => {
