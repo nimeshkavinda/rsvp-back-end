@@ -1,40 +1,22 @@
 import express from "express";
-import bodyParser from "body-parser";
+// import bodyParser from "body-parser";
 import { MongoClient } from "mongodb";
 import path from "path";
 import history from "connect-history-api-fallback";
 import cors from "cors";
-import { error } from "console";
+// import { error } from "console";
 
 const app = express();
-// const mongo = require("../mongo");
 
-// mongo.connect(() => {
-//   app.listen(process.env.PORT || 5555, function () {
-//     console.log("mongo client is connected");
-//   });
-// });
-
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: true }));
-app.use(
-  express.static(path.resolve(__dirname, "../dist"), {
-    maxAge: "1y",
-    eTag: false,
-  })
-);
-app.use(express.json({ limit: "200mb", extended: true }));
-app.use(express.urlencoded());
-// app.use(express.bodyParser());
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({
-//   extended: true
-// }));
-// app.use(express.json() = {
-//   json: {limit: '50mb', extended: true},
-//   urlencoded: {limit: '50mb', extended: true}
-// });
-app.use(history());
+// app.use(
+//   express.static(path.resolve(__dirname, "../dist"), {
+//     maxAge: "1y",
+//     eTag: false,
+//   })
+// );
+app.use(express.json({ limit: "50mb", extended: true }));
+app.use(express.urlencoded({ extended: true }));
+// app.use(history());
 app.use(cors());
 
 app.listen(process.env.PORT || 8000, () => {
@@ -118,6 +100,23 @@ app.post("/api/events", async (req, res) => {
   res.status(200).json("success");
 });
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "--/dist/index.html"));
+app.delete("/api/events/:eventId", async (req, res) => {
+  const { eventId } = req.params;
+  const client = await MongoClient.connect(
+    process.env.MONGO_USER && process.env.MONGO_PASS
+      ? "mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}>@cluster0.bomle.mongodb.net/${process.env.MONGO_DBNAME}?retryWrites=true&w=majority"
+      : "mongodb://127.0.0.1:27017",
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }
+  );
+  const db = client.db(process.env.MONGO_DBNAME || "foss-rsvp");
+  await db.collection("events").deleteOne({id: eventId});
+  res.status(200).json("success");
+  client.close();
 });
+
+// app.get("*", (req, res) => {
+//   res.sendFile(path.join(__dirname, "../dist/index.html"));
+// });
