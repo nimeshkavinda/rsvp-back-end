@@ -16,7 +16,11 @@ const app = express();
 //   })
 // );
 
-// const firebaseAdmin = admin.initializeApp();
+// const serviceAccount = require(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+
+// admin.initializeApp({
+//   credential: admin.credential.cert(serviceAccount),
+// });
 
 // admin
 //   .auth()
@@ -77,7 +81,7 @@ app.get("/api/events/:eventId", async (req, res) => {
     }
   );
   const db = client.db(process.env.MONGO_DBNAME || "foss-rsvp");
-  const event = await db.collection("events").findOne({}, { id: eventId });
+  const event = await db.collection("events").findOne({ id: eventId });
   if (event) {
     res.status(200).json(event);
   } else {
@@ -176,6 +180,22 @@ app.delete("/api/events/:eventId", async (req, res) => {
   res.status(200).json("success");
   client.close();
 });
+
+app.delete("/api/users/:userId"),
+  async (req, res) => {
+    const { userId } = req.params;
+    admin
+      .auth()
+      .deleteUser(userId)
+      .then(() => {
+        console.log("Successfully deleted user");
+        res.status(200).json("success");
+      })
+      .catch((error) => {
+        console.log("Error deleting user:", error);
+        res.status(400).json("failure");
+      });
+  };
 
 // app.get("*", (req, res) => {
 //   res.sendFile(path.join(__dirname, "../dist/index.html"));
