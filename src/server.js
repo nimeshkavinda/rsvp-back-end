@@ -126,14 +126,16 @@ app.post("/api/events", async (req, res) => {
   res.status(200).json("success");
 });
 
-app.put("/api/events/:eventId", async (req, res) => {
-  const { eventId } = req.params;
+app.put("/api/events", async (req, res) => {
+  // const { eventId } = req.params;
   const event = {
+    id: req.body.id,
     name: req.body.name,
     datetime: req.body.datetime,
     venue: req.body.venue,
     description: req.body.description,
     organizer: req.body.organizer,
+    speaker: req.body.speaker,
     organizerPhotoUrl: req.body.organizerPhotoUrl,
     speakerPhotoUrl: req.body.speakerPhotoUrl,
     thumbnailUrl: req.body.thumbnailUrl,
@@ -151,7 +153,25 @@ app.put("/api/events/:eventId", async (req, res) => {
   const db = client.db(process.env.MONGO_DBNAME || "foss-rsvp");
   await db
     .collection("events")
-    .updateOne({ id: req.params }, event)
+    .updateOne(
+      { id: req.body.id },
+      {
+        $set: {
+          id: req.body.id,
+          name: req.body.name,
+          datetime: req.body.datetime,
+          venue: req.body.venue,
+          description: req.body.description,
+          organizer: req.body.organizer,
+          speaker: req.body.speaker,
+          organizerPhotoUrl: req.body.organizerPhotoUrl,
+          speakerPhotoUrl: req.body.speakerPhotoUrl,
+          thumbnailUrl: req.body.thumbnailUrl,
+          rsvpUrl: req.body.rsvpUrl,
+        },
+      },
+      { upsert: true }
+    )
     .then(() => {
       res.status(201).json({
         message: "event updated successfully!",
