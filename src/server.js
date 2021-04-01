@@ -5,6 +5,7 @@ import path from "path";
 import history from "connect-history-api-fallback";
 import cors from "cors";
 // import { error } from "console";
+import * as admin from "firebase-admin";
 
 const app = express();
 
@@ -14,6 +15,27 @@ const app = express();
 //     eTag: false,
 //   })
 // );
+
+// const firebaseAdmin = admin.initializeApp();
+
+// admin
+//   .auth()
+//   .getUsers([{ email: 'nimesh@fossnsbm.org' }])
+//   .then((getUsersResult) => {
+//     console.log("Successfully fetched user data:");
+//     getUsersResult.users.forEach((userRecord) => {
+//       console.log(userRecord);
+//     });
+
+//     console.log("Unable to find users corresponding to these identifiers:");
+//     getUsersResult.notFound.forEach((userIdentifier) => {
+//       console.log(userIdentifier);
+//     });
+//   })
+//   .catch((error) => {
+//     console.log("Error fetching user data:", error);
+//   });
+
 app.use(express.json({ limit: "50mb", extended: true }));
 app.use(express.urlencoded({ extended: true }));
 // app.use(history());
@@ -100,6 +122,44 @@ app.post("/api/events", async (req, res) => {
   res.status(200).json("success");
 });
 
+app.put("/api/events/:eventId", async (req, res) => {
+  const { eventId } = req.params;
+  const event = {
+    name: req.body.name,
+    datetime: req.body.datetime,
+    venue: req.body.venue,
+    description: req.body.description,
+    organizer: req.body.organizer,
+    organizerPhotoUrl: req.body.organizerPhotoUrl,
+    speakerPhotoUrl: req.body.speakerPhotoUrl,
+    thumbnailUrl: req.body.thumbnailUrl,
+    rsvpUrl: req.body.rsvpUrl,
+  };
+  const client = await MongoClient.connect(
+    process.env.MONGO_USER && process.env.MONGO_PASS
+      ? "mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}>@cluster0.bomle.mongodb.net/${process.env.MONGO_DBNAME}?retryWrites=true&w=majority"
+      : "mongodb://127.0.0.1:27017",
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }
+  );
+  const db = client.db(process.env.MONGO_DBNAME || "foss-rsvp");
+  await db
+    .collection("events")
+    .updateOne({ id: req.params }, event)
+    .then(() => {
+      res.status(201).json({
+        message: "event updated successfully!",
+      });
+    })
+    .catch((error) => {
+      res.status(400).json({
+        error: error,
+      });
+    });
+});
+
 app.delete("/api/events/:eventId", async (req, res) => {
   const { eventId } = req.params;
   const client = await MongoClient.connect(
@@ -112,7 +172,7 @@ app.delete("/api/events/:eventId", async (req, res) => {
     }
   );
   const db = client.db(process.env.MONGO_DBNAME || "foss-rsvp");
-  await db.collection("events").deleteOne({id: eventId});
+  await db.collection("events").deleteOne({ id: eventId });
   res.status(200).json("success");
   client.close();
 });
